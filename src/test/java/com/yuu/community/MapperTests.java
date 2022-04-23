@@ -1,7 +1,9 @@
 package com.yuu.community;
 
 
+import com.yuu.community.dao.LoginTicketDao;
 import com.yuu.community.entity.DiscussPost;
+import com.yuu.community.entity.LoginTicket;
 import com.yuu.community.entity.User;
 import com.yuu.community.service.DiscussPostService;
 import com.yuu.community.service.UserService;
@@ -18,7 +20,8 @@ import java.util.List;
 @SpringBootTest
 @ContextConfiguration(classes = CommunityApplication.class)
 public class MapperTests {
-
+    @Autowired
+    private LoginTicketDao loginTicketMapper;
     @Autowired
     private UserService userMapper;
 
@@ -74,4 +77,25 @@ public class MapperTests {
         int rows = discussPostMapper.findDiscussPostRows(149);
         System.out.println(rows);
     }
+    @Test
+    public void testInsertLoginTicket() {
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(101);
+        loginTicket.setTicket("abc");
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + 1000 * 60 * 10));
+
+        loginTicketMapper.insertLoginTicket(loginTicket);
+    }
+
+    @Test
+    public void testSelectLoginTicket() {
+        LoginTicket loginTicket = loginTicketMapper.selectByTicket("abc");
+        System.out.println(loginTicket);
+
+        loginTicketMapper.updateStatus("abc", 1);
+        loginTicket = loginTicketMapper.selectByTicket("abc");
+        System.out.println(loginTicket);
+    }
+
 }
