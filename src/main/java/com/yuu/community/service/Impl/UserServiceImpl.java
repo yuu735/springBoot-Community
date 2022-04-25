@@ -135,6 +135,19 @@ public class UserServiceImpl implements UserService {
         return map;
     }
 
+
+    @Override
+    public void logout(String ticket) {
+        System.out.println("当前要退出的"+ticket);
+        loginTicketDao.updateStatus(ticket, 1);
+    }
+
+    @Override
+    public int updateHeader(int id, String headerUrl) {
+        return userDao.updateHeader(id,headerUrl);
+    }
+
+
     @Override
     public LoginTicket findLoginTicket(String ticket) {
         return loginTicketDao.selectByTicket(ticket);
@@ -165,13 +178,10 @@ public class UserServiceImpl implements UserService {
         return userDao.updateStatus(id,status);
     }
 
-    @Override
-    public int updateHeader(int id, String headerUrl) {
-        return userDao.updateHeader(id,headerUrl);
-    }
 
     @Override
     public int updatePassword(int id, String password) {
+
         return userDao.updatePassword(id,password);
     }
 }

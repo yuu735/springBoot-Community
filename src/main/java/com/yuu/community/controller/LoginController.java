@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -70,9 +71,10 @@ public class LoginController {
             return "site/login";
         }
     }
-    @RequestMapping("/logout")
-    public void logout(String ticket){
-        loginTicketDao.updateStatus(ticket,1);
+    @RequestMapping(path = "/logout", method = RequestMethod.GET)
+    public String logout(@CookieValue("ticket") String ticket) {
+        userService.logout(ticket);
+        return "redirect:/login";
     }
     @RequestMapping(path="/kaptcha",method=RequestMethod.GET)
     public void getKaptcha(HttpServletResponse response, HttpSession session){

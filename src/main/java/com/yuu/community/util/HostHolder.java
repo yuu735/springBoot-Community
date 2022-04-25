@@ -21,5 +21,6 @@ public class HostHolder{
     }
     public void clear(){
         users.remove();
+        //System.out.println("user删除！");
     }
 }

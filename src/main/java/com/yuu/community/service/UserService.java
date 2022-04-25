@@ -10,7 +10,10 @@ public interface UserService {
     int activation(int userId, String code); //激活账户
 
     Map<String,Object> login(String username,String password,int expiredSeconds);
+    void logout(String ticket);
+
     LoginTicket findLoginTicket(String ticket);
+
 
     User findUserById(int id);
     User findUserByName(String username);

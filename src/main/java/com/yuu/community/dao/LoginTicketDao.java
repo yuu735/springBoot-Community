@@ -19,14 +19,14 @@ public interface LoginTicketDao {
     })
     LoginTicket selectByTicket(String ticket);
         //使用了动态sql<if>，需要在外面加一个脚本<script>才可以用<if>,这里只是演示怎么用
-    @Update({
-            "<script>",
-            "update login_ticket set status=#{status} where ticket=#{ticket} ",
-            "<if test=\"ticket!=null\"> ",
-            "and 1=1 ",
-            "</if>",
-            "</script>"
-    })
-    int updateStatus(String ticket, int status);
+        @Update({
+                "<script>",
+                "update login_ticket set status=#{status} where ticket=#{ticket} ",
+                "<if test=\"ticket!=null\"> ",
+                "and 1=1 ",
+                "</if>",
+                "</script>"
+        })
+        int updateStatus(String ticket, int status);
 
 }
