@@ -2,8 +2,10 @@ package com.yuu.community;
 
 
 import com.yuu.community.dao.LoginTicketDao;
+import com.yuu.community.dao.MessageDao;
 import com.yuu.community.entity.DiscussPost;
 import com.yuu.community.entity.LoginTicket;
+import com.yuu.community.entity.Message;
 import com.yuu.community.entity.User;
 import com.yuu.community.service.DiscussPostService;
 import com.yuu.community.service.UserService;
@@ -27,6 +29,8 @@ public class MapperTests {
 
     @Autowired
     private DiscussPostService discussPostMapper;
+    @Autowired
+    private MessageDao messageMapper;
 
     @Test
     public void testSelectUser() {
@@ -96,6 +100,33 @@ public class MapperTests {
         loginTicketMapper.updateStatus("abc", 1);
         loginTicket = loginTicketMapper.selectByTicket("abc");
         System.out.println(loginTicket);
+    }
+    @Test
+    public void testSelectLetters() {
+        List<Message> list = messageMapper.selectConversations(111, 0, 20);
+        for (Message message : list) {
+            System.out.println(message);
+        }
+        System.out.println("********************************************");
+
+        int count = messageMapper.selectConversationCount(111);
+        System.out.println(count);
+        System.out.println("********************************************");
+
+        list = messageMapper.selectLetters("111_112", 0, 10);
+        for (Message message : list) {
+            System.out.println(message);
+        }
+        System.out.println("********************************************");
+
+
+        count = messageMapper.selectLetterCount("111_112");
+        System.out.println(count);
+        System.out.println("********************************************");
+
+        count = messageMapper.selectLetterUnreadCount(131, "111_131");
+        System.out.println(count);
+
     }
 
 }

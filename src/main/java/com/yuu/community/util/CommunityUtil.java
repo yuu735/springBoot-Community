@@ -1,8 +1,10 @@
 package com.yuu.community.util;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.DigestUtils;
 
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -24,5 +26,27 @@ public class CommunityUtil {
         }
         return DigestUtils.md5DigestAsHex(key.getBytes());
     }
+
+    //发布帖子需要的方法
+    public static String getJSONString(int code, String msg, Map<String,Object> map){
+        //封装成json对象
+        JSONObject json=new JSONObject();
+        json.put("code",code);
+        json.put("msg",msg);
+        if(map!=null){
+            for(String key: map.keySet()){
+                json.put(key,map.get(key));
+            }
+        }
+        //转为json字符串
+        return json.toJSONString();
+    }
+    public static String getJSONString(int code,String msg){
+        return getJSONString(code,msg,null);
+    }
+    public static String getJSONString(int code){
+        return getJSONString(code,null,null);
+    }
+
 
 }
