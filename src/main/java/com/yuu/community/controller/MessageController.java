@@ -71,7 +71,7 @@ public class MessageController {
             for(Message message:letterList){
                 Map<String,Object> map=new HashMap<>();
                 map.put("letter",message);
-                map.put("fromeUser",userService.findUserById(message.getFromId()));
+                map.put("fromUser",userService.findUserById(message.getFromId()));
                 letters.add(map);
             }
         }

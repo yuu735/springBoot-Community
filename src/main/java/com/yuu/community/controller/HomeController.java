@@ -4,7 +4,9 @@ import com.yuu.community.entity.DiscussPost;
 import com.yuu.community.entity.Page;
 import com.yuu.community.entity.User;
 import com.yuu.community.service.DiscussPostService;
+import com.yuu.community.service.LikeService;
 import com.yuu.community.service.UserService;
+import com.yuu.community.util.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +24,11 @@ public class HomeController {
     private DiscussPostService discussPostService;
     @Autowired
     private UserService userService;
+    //查询帖子的点赞数量进行初始化
+    @Autowired
+    private LikeService likeService;
+
+
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page) {
         page.setRows(discussPostService.findDiscussPostRows(0));
@@ -35,6 +42,8 @@ public class HomeController {
                 map.put("post", post);
                 User user = userService.findUserById(post.getUserId());
                 map.put("user", user);
+                long likeCount=likeService.findEntityLikeCount(Constant.ENTITY_TYPE_POST,post.getId());
+                map.put("likeCount",likeCount);
                 discussPosts.add(map);
             }
         }

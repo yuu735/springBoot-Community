@@ -2,6 +2,7 @@ package com.yuu.community.controller;
 
 import com.yuu.community.annotation.LoginRequired;
 import com.yuu.community.entity.User;
+import com.yuu.community.service.LikeService;
 import com.yuu.community.service.UserService;
 import com.yuu.community.util.CommunityUtil;
 import com.yuu.community.util.HostHolder;
@@ -38,6 +39,8 @@ public class UserController {
     private String contextPath;
     @Autowired
     private HostHolder hostHolder;
+    @Autowired
+    private LikeService likeService;
 
     @LoginRequired
     @RequestMapping(path="/setting",method = RequestMethod.GET)
@@ -130,5 +133,20 @@ public class UserController {
         userService.updatePassword(user.getId(),confirmPassword);   //修改密码
         userService.logout(ticket); //退出重新登录
         return "redirect:/login";
+    }
+
+    //个人主页(也可以查看别人的主页)
+    @RequestMapping(path = "/profile/{userId}",method = RequestMethod.GET)
+    public String getProfile(@PathVariable("userId")int userId,Model model){
+        User user=userService.findUserById(userId);
+        if(user==null){
+            throw new RuntimeException("该用户不存在");
+        }
+        //用户基本信息
+        model.addAttribute("user",user);
+        //点赞数量
+        int likeCount=likeService.findUserLikeCount(userId);
+        model.addAttribute("likeCount",likeCount);
+        return "site/profile";
     }
 }
