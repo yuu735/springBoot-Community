@@ -35,7 +35,7 @@ public class SensitiveFilter {
                 this.addKeyword(keyword);
             }
         } catch (IOException e){
-            logger.error("加载铭感次文件失败"+e.getMessage());
+            logger.error("加载敏感词文件失败"+e.getMessage());
         }
     }
 
@@ -78,45 +78,51 @@ public class SensitiveFilter {
         //修改的结果
         StringBuilder sb=new StringBuilder();
 
-        //遍历text
-        while(position<text.length()) {
-            char c=text.charAt(position);
-            //跳过符号：
-            if(isSymbol(c)){
-                //若指针1处于根节点,将此符号记录结果，指针2向下走(从下一个算开始
-               if(tempNode==rootNode){
-                   sb.append(c);
-                   begin++;
-               }
-                //System.out.println("是符号哦跳过");
-                position++;//无论符号在开头或中间，指针3都往下遍历
-                continue;
+        //遍历text：应该用指针2来遍历循环，如果用指针3很有可能最后一个敏感词还没判断到就加入到修改的结果了。
+        while(begin<text.length()) {
+            if(position<text.length()){
+                char c=text.charAt(position);
+                //跳过符号：
+                if(isSymbol(c)){
+                    //若指针1处于根节点,将此符号记录结果，指针2向下走(从下一个算开始
+                    if(tempNode==rootNode){
+                        sb.append(c);
+                        begin++;
+                    }
+                    //System.out.println("是符号哦跳过");
+                    position++;//无论符号在开头或中间，指针3都往下遍历
+                    continue;
+                }
+                //检查下级节点
+                tempNode=tempNode.getSubNode(c);    //检查前缀树里面的敏感词
+                if(tempNode==null){
+                    //以begin开头的字符串不是敏感词（不在前缀树中）
+                    sb.append(text.charAt(begin));
+                    //进入下一个位置
+                    position=++begin;   //begin先++然后再赋值给position
+                    //重新指向根节点
+                    tempNode=rootNode;
+                    //到达结束标识表示发现了一个敏感词
+                }else if(tempNode.isKeyWordEnd()){
+                    //敏感词begin开头position结尾的字符串替换掉
+                    sb.append(REPLACEMENT);
+                    //进入下一个位置
+                    begin=++position;
+                    tempNode=rootNode;
+                }else {
+                    //目前有符合的嫌疑敏感词但前缀树中的敏感词还没查到结束标识
+                    //继续检查下一个字符
+                    position++;
+                }
             }
-            //检查子节点
-            tempNode=tempNode.getSubNode(c);    //检查前缀树里面的敏感词
-            if(tempNode==null){
-                //以begin开头的字符串不是敏感词（不在前缀树中）
+            //position指针3遍历越界仍未匹配到敏感词
+            else{
                 sb.append(text.charAt(begin));
-                //进入下一个位置
-                position=++begin;   //begin先++然后再赋值给position
-                //重新指向根节点
+                position=++begin;
                 tempNode=rootNode;
-                //到达结束标识表示发现了一个敏感词
-            }else if(tempNode.isKeyWordEnd()){
-                //敏感词begin开头position结尾的字符串替换掉
-                sb.append(REPLACEMENT);
-                //进入下一个位置
-                begin=++position;
-                tempNode=rootNode;
-            }else {
-                //目前有符合的嫌疑敏感词但前缀树中的敏感词还没查到结束标识
-                //继续检查下一个字符
-                position++;
             }
         }
         System.out.println(sb.toString());
-        //最后一批字符串不是敏感词的时候还没有记录到结果中就结束循环了
-        sb.append(text.substring(begin));
         return sb.toString();
 
     }

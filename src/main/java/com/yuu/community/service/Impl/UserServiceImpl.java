@@ -139,7 +139,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void logout(String ticket) {
         System.out.println("当前要退出的"+ticket);
-        loginTicketDao.updateStatus(ticket, 1);
+        loginTicketDao.updateStatus(ticket, 1); //根据登录口令来判断是哪个login_ticket需要修改
     }
 
     @Override

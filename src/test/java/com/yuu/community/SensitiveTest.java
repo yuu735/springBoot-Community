@@ -15,7 +15,9 @@ public class SensitiveTest {
 
     @Test
     public void test(){
-        String text="这里可以☆赌☆博☆，可以开票，开";
+        //String text="这里可以☆赌☆博☆，可以开票，开";
+        //String text="☆f☆a☆b☆c☆d☆1☆2☆3☆ab,fabc";
+        String text="☆f☆a☆b☆c☆";
         text=filter.filter(text);
         System.out.println(text);
     }

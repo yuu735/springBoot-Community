@@ -60,9 +60,9 @@ public class LoginController {
         //表示登录成功
         if(map.containsKey("ticket")){
             Cookie cookie=new Cookie("ticket",map.get("ticket").toString());
-            cookie.setPath(contextPath);    //   /community
+            cookie.setPath(contextPath);    //  cookie生效范围： /community
             cookie.setMaxAge(expiredSeconds);   //过期时间
-            response.addCookie(cookie); //响应给浏览器
+            response.addCookie(cookie); //响应给浏览器！！
 
             return "redirect:/index";
         }else{
@@ -73,6 +73,7 @@ public class LoginController {
     }
     @RequestMapping(path = "/logout", method = RequestMethod.GET)
     public String logout(@CookieValue("ticket") String ticket) {
+        //找到名为ticket的cookie保存的value值，赋值给ticket字符串！
         userService.logout(ticket);
         return "redirect:/login";
     }

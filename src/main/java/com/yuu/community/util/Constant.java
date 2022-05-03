@@ -33,5 +33,9 @@ public class Constant {
      * 回复的实体类型：评论（评论回复评论）
      */
     public static final int ENTITY_TYPE_COMMENT=2;
+    /**
+     * 回复的实体类型：用户
+     */
+    public static final int ENTITY_TYPE_USER=3;
 
 }

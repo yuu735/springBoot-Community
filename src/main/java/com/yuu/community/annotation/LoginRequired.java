@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 自定义注解
  * 哪些请求是需要登录才能访问
  */
 @Target(ElementType.METHOD)

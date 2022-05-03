@@ -28,7 +28,7 @@ public class LoginRequiredInterceptor implements HandlerInterceptor {
             Method method=handlerMethod.getMethod();
             //获取方法对象的注解
             LoginRequired loginRequired=method.getAnnotation(LoginRequired.class);
-            //不为空表示需要登录后才可以访问的
+            //不为空表示需要登录后才可以访问的！！！
             //因此还需要判断有无登录
             if(loginRequired!=null && hostHolder.getUser()==null){
                 //重定向去登录
