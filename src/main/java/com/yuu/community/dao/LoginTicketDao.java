@@ -4,6 +4,7 @@ import com.yuu.community.entity.LoginTicket;
 import org.apache.ibatis.annotations.*;
 
 @Mapper
+@Deprecated //以后不推荐使用了
 public interface LoginTicketDao {
     //因为要换行所以用{}将所有包裹起来到时候好拼接在一起
     @Insert({

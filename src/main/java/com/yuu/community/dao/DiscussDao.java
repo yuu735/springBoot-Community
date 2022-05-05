@@ -3,6 +3,7 @@ package com.yuu.community.dao;
 import com.yuu.community.entity.DiscussPost;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * 帖子
  */
 @Mapper
+@Repository
 public interface DiscussDao {
     List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit);
 

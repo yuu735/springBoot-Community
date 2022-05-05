@@ -10,6 +10,12 @@ public class RedisKeyUtil {
     private static final String PREFIX_FOLLOWEE="followee";
     //粉丝
     private static final String PREFIX_FOLLOWER="follower";
+    //验证码
+    private static final String PREFIX_KAPTCHA="kaptcha";
+    //登录凭证
+    private static final String PREFIX_TICKET="ticket";
+    //登录用户信息
+    private static final String PREFIX_USER="user";
 
     /**
      * 用于生成Redis中的键->某个实体的赞(key)
@@ -41,5 +47,20 @@ public class RedisKeyUtil {
     //follower:entityType:entityId  ->zset(userId,now)关注的当前时间作为分数
     public static String getFollowerKey(int entityType,int entityId){
         return PREFIX_FOLLOWER+SPLIT+entityType+SPLIT+entityId;
+    }
+
+    //验证码
+    public static String getKaptchaKey(String owner){
+        //识别验证码属于哪个用户，还没登录就不知道是谁的验证码，因此先用一个临时凭证标注一下
+        return PREFIX_KAPTCHA+SPLIT+owner;
+    }
+    //登录凭证
+    public static String getTicketKey(String ticket){
+        //识别验证码属于哪个用户，还没登录就不知道是谁的验证码，因此先用一个临时凭证标注一下
+        return PREFIX_TICKET+SPLIT+ticket;
+    }
+    //登录用户
+    public static String getUserKey(int userId){
+        return PREFIX_USER+SPLIT+userId;
     }
 }

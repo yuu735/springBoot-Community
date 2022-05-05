@@ -8,9 +8,11 @@ import com.yuu.community.service.UserService;
 import com.yuu.community.util.CommunityUtil;
 import com.yuu.community.util.Constant;
 import com.yuu.community.util.MailClient;
+import com.yuu.community.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -20,7 +22,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+/**
+ * 重构登录凭证
+ */
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
@@ -33,6 +39,8 @@ public class UserServiceImpl implements UserService {
     private String domain;
     @Value("${server.servlet.context-path}")
     private String contextPath;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Autowired
     private UserDao userDao;
@@ -93,6 +101,7 @@ public class UserServiceImpl implements UserService {
             return Constant.ACTIVATION_REPEAT;  //重复激活
         } else if (user.getActivationCode().equals(code)) {
             userDao.updateStatus(userId, 1);    //激活成功
+            clearCache(userId);
             return Constant.ACTIVATION_SUCCESS;
         } else {
             return Constant.ACTIVATION_FAILURE;     //激活失败
@@ -129,7 +138,10 @@ public class UserServiceImpl implements UserService {
         loginTicket.setTicket(CommunityUtil.generateUUID());//登录口令:随机字符串
         loginTicket.setStatus(0);   //登录状态0没过期，1过期
         loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));   //过期时间
-        loginTicketDao.insertLoginTicket(loginTicket);  //添加登录凭证
+       // loginTicketDao.insertLoginTicket(loginTicket);  //添加登录凭证
+        //改存到redis中
+        String redisKey= RedisKeyUtil.getTicketKey(loginTicket.getTicket());
+        redisTemplate.opsForValue().set(redisKey,loginTicket);//会将loginTicket对象序列化为json字符串保存
 
         map.put("ticket", loginTicket.getTicket()); // ticket:登录口令（随机字符串）
         return map;
@@ -139,24 +151,40 @@ public class UserServiceImpl implements UserService {
     @Override
     public void logout(String ticket) {
         System.out.println("当前要退出的"+ticket);
-        loginTicketDao.updateStatus(ticket, 1); //根据登录口令来判断是哪个login_ticket需要修改
+        //loginTicketDao.updateStatus(ticket, 1); //根据登录口令来判断是哪个login_ticket需要修改
+        String redisKey= RedisKeyUtil.getTicketKey(ticket);
+        LoginTicket loginTicket=(LoginTicket)redisTemplate.opsForValue().get(redisKey);
+        loginTicket.setStatus(1);
+        redisTemplate.opsForValue().set(redisKey,loginTicket);  //覆盖原来的值
     }
 
     @Override
     public int updateHeader(int id, String headerUrl) {
-        return userDao.updateHeader(id,headerUrl);
+       // return userDao.updateHeader(id,headerUrl);
+        int rows=userDao.updateHeader(id,headerUrl);
+        clearCache(id);
+        return rows;    //成功rows返回的是1
+
     }
 
 
     @Override
     public LoginTicket findLoginTicket(String ticket) {
-        return loginTicketDao.selectByTicket(ticket);
+        //return loginTicketDao.selectByTicket(ticket);
+        String redisKey= RedisKeyUtil.getTicketKey(ticket);
+        return (LoginTicket) redisTemplate.opsForValue().get(redisKey);
     }
 
     @Override
     public User findUserById(int id) {
-        return userDao.selectById(id);
+       // return userDao.selectById(id);
+        User user=getCache(id);
+        if(user==null){
+            user=initCache(id);
+        }
+        return user;
     }
+
 
     @Override
     public User findUserByName(String username) {
@@ -175,13 +203,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int updateStatus(int id, int status) {
-        return userDao.updateStatus(id,status);
+        int rows=userDao.updateStatus(id,status);
+        clearCache(id);
+        return rows;
+
     }
 
 
     @Override
     public int updatePassword(int id, String password) {
+        int rows=userDao.updatePassword(id,password);
+        clearCache(id);
+        return rows;
+    }
 
-        return userDao.updatePassword(id,password);
+    // 1当查询时优先从缓存中取值
+    private User getCache(int userId){
+        String redisKey=RedisKeyUtil.getUserKey(userId);
+        return (User)redisTemplate.opsForValue().get(redisKey);
+    }
+    // 2取不到的时候再从数据库中取值并且初始化缓存数据
+    private User initCache(int userId){
+        //从mysql中查询
+        User user=userDao.selectById(userId);
+        String redisKey=RedisKeyUtil.getUserKey(userId);
+        redisTemplate.opsForValue().set(redisKey,user,3600, TimeUnit.SECONDS);
+        return user;
+    }
+    // 3数据变更时清除缓存数据
+    private void clearCache(int userId){
+        String redisKey=RedisKeyUtil.getUserKey(userId);
+        redisTemplate.delete(redisKey);
     }
 }
