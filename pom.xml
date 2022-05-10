@@ -17,6 +17,16 @@
         <java.version>11</java.version>
         <elasticsearch.version>7.15.2</elasticsearch.version>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.lz4</groupId>
+                <artifactId>lz4-java</artifactId>
+                <version>1.8.0</version>
+            </dependency>
+        </dependencies>
+
+    </dependencyManagement>
     <dependencies>
 <!--        数据库mybatis-->
         <dependency>
@@ -84,12 +94,19 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+        <!--       kafka依赖       -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
 
 <!--        elasticsearch分布式搜索引擎-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+
         </dependency>
+
     </dependencies>
 
     <build>

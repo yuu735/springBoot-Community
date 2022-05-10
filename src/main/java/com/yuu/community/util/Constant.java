@@ -37,5 +37,29 @@ public class Constant {
      * 回复的实体类型：用户
      */
     public static final int ENTITY_TYPE_USER=3;
+    /**
+     * 主题发帖
+     */
+    public static final String TOPIC_PUBLISH="publish";
+    /**
+     * 主题: 评论
+     */
+    public static final String TOPIC_COMMENT = "comment";
+
+    /**
+     * 主题: 点赞
+     */
+    public static final String TOPIC_LIKE = "like";
+
+    /**
+     * 主题: 关注
+     */
+    public static final String TOPIC_FOLLOW = "follow";
+
+
+    /**
+     * 系统用户ID
+     */
+    public static final int SYSTEM_USER_ID = 1;
 
 }

@@ -1,9 +1,7 @@
 package com.yuu.community.controller;
 
-import com.yuu.community.entity.Comment;
-import com.yuu.community.entity.DiscussPost;
-import com.yuu.community.entity.Page;
-import com.yuu.community.entity.User;
+import com.yuu.community.entity.*;
+import com.yuu.community.event.EventProducer;
 import com.yuu.community.service.CommentService;
 import com.yuu.community.service.DiscussPostService;
 import com.yuu.community.service.LikeService;
@@ -12,6 +10,7 @@ import com.yuu.community.util.CommunityUtil;
 import com.yuu.community.util.Constant;
 import com.yuu.community.util.HostHolder;
 import org.apache.catalina.Host;
+import org.elasticsearch.client.eql.EqlSearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,6 +34,8 @@ public class DiscussPostController {
     private CommentService commentService;
     @Autowired
     private LikeService likeService;
+    @Autowired
+    private EventProducer eventProducer;
 
     @RequestMapping(path="/add",method= RequestMethod.POST)
     @ResponseBody
@@ -50,6 +51,15 @@ public class DiscussPostController {
         post.setContent(content);
         post.setCreateTime(new Date());
         discussPostService.addDiscussPost(post);
+        //触发发帖事件（存到elasticsearch）
+        Event event=new Event()
+                .setTopic(Constant.TOPIC_PUBLISH)
+                .setUserId(user.getId())
+                .setEntityType(Constant.ENTITY_TYPE_POST)
+                .setEntityId(post.getId());
+
+        eventProducer.fireEvent(event);
+
         //报错的情况将来统一处理
         return CommunityUtil.getJSONString(0,"发布成功");
     }

@@ -5,8 +5,10 @@ import com.yuu.community.entity.Page;
 import com.yuu.community.entity.User;
 import com.yuu.community.service.DiscussPostService;
 import com.yuu.community.service.LikeService;
+import com.yuu.community.service.MessageService;
 import com.yuu.community.service.UserService;
 import com.yuu.community.util.Constant;
+import com.yuu.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +29,10 @@ public class HomeController {
     //查询帖子的点赞数量进行初始化
     @Autowired
     private LikeService likeService;
+    @Autowired
+    private MessageService messageService;
+    @Autowired
+    private HostHolder hostHolder;
 
 
     @RequestMapping(path = "/index", method = RequestMethod.GET)
@@ -47,6 +53,7 @@ public class HomeController {
                 discussPosts.add(map);
             }
         }
+
         model.addAttribute("discussPosts", discussPosts);
         model.addAttribute("page",page);
         return "index";

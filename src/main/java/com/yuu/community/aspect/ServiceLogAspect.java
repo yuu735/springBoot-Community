@@ -30,6 +30,10 @@ public class ServiceLogAspect {
     public void before(JoinPoint joinPoint){
         //格式：用户[1.2.3.4],在[xxx时间],访问了[com.....service...()方法]
         ServletRequestAttributes attributes=(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if(attributes==null){
+           return;
+        }
+        //attributes有可能为空，并不是所有都在controller调用。像消费者和生产者就不是在controller调用!
         HttpServletRequest request = attributes.getRequest();
         String ip=request.getRemoteHost();
         String now=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());

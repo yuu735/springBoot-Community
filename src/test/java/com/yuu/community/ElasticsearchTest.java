@@ -67,7 +67,7 @@ public class ElasticsearchTest {
     @Test
     public void testUpdate(){
         DiscussPost post=discussDao.selectDiscussPostById(281);
-        post.setContent("我是修改过后的内容！");
+        post.setContent("我是第二次修改过后的内容！");
         discussPostRepository.save(post);
     }
     //删除
@@ -153,6 +153,50 @@ public class ElasticsearchTest {
         }
     }
 
+
+    //测试elasticsearchService中使用的高亮查询，可行
+    @Test
+    public void highLightQuery2() throws Exception{
+        SearchRequest searchRequest = new SearchRequest("discusspost");//discusspost是索引名，就是表名
+
+        //高亮
+        HighlightBuilder highlightBuilder = new HighlightBuilder();
+        highlightBuilder.field("title");
+        highlightBuilder.field("content");
+        highlightBuilder.requireFieldMatch(false);
+        highlightBuilder.preTags("<em>");
+        highlightBuilder.postTags("</em>");
+
+        //构建搜索条件
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
+                .query(QueryBuilders.multiMatchQuery("互联网寒冬", "title", "content"))
+                .sort(SortBuilders.fieldSort("type").order(SortOrder.DESC))
+                .sort(SortBuilders.fieldSort("score").order(SortOrder.DESC))
+                .sort(SortBuilders.fieldSort("createTime").order(SortOrder.DESC))
+                .from(0)// 指定从哪条开始查询
+                .size(5)// 需要查出的总记录条数
+                .highlighter(highlightBuilder);//高亮
+
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+        List<DiscussPost> list = new LinkedList<>();
+        //这里将有高亮的结果覆盖原来的数据！！
+        for (SearchHit hit : searchResponse.getHits().getHits()) {
+            DiscussPost discussPost = JSONObject.parseObject(hit.getSourceAsString(), DiscussPost.class);
+            // 处理高亮显示的结果
+            HighlightField titleField = hit.getHighlightFields().get("title");
+            if (titleField != null) {
+                discussPost.setTitle(titleField.getFragments()[0].toString());
+            }
+            HighlightField contentField = hit.getHighlightFields().get("content");
+            if (contentField != null) {
+                discussPost.setContent(contentField.getFragments()[0].toString());
+            }
+            System.out.println(discussPost);
+            list.add(discussPost);
+        }
+
+    }
 
 
 }

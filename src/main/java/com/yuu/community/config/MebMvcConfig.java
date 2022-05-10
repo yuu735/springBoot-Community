@@ -2,6 +2,7 @@ package com.yuu.community.config;
 
 import com.yuu.community.interceptor.LoginRequiredInterceptor;
 import com.yuu.community.interceptor.LoginTicketInteceptor;
+import com.yuu.community.interceptor.MessageInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -16,6 +17,8 @@ public class MebMvcConfig implements WebMvcConfigurer{
     private LoginTicketInteceptor loginTicketInteceptor;
     @Autowired
     private LoginRequiredInterceptor loginRequiredInterceptor;
+    @Autowired
+    private MessageInterceptor messageInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -25,6 +28,9 @@ public class MebMvcConfig implements WebMvcConfigurer{
                 //所有页面都需要拦截所以不需要写addPathPatterns
 
         registry.addInterceptor(loginRequiredInterceptor)
+                .excludePathPatterns("/**/*.css","/**/*.js","/**/*.png","/**/*.jpg","/**/*.jpeg");
+
+        registry.addInterceptor(messageInterceptor)
                 .excludePathPatterns("/**/*.css","/**/*.js","/**/*.png","/**/*.jpg","/**/*.jpeg");
     }
 }

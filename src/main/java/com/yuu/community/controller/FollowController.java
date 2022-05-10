@@ -1,7 +1,10 @@
 package com.yuu.community.controller;
 
+import com.yuu.community.annotation.LoginRequired;
+import com.yuu.community.entity.Event;
 import com.yuu.community.entity.Page;
 import com.yuu.community.entity.User;
+import com.yuu.community.event.EventProducer;
 import com.yuu.community.service.FollowService;
 import com.yuu.community.service.UserService;
 import com.yuu.community.util.CommunityUtil;
@@ -26,13 +29,24 @@ public class FollowController {
     private UserService userService;
     @Autowired
     private HostHolder hostHolder;
-
+    @Autowired
+    private EventProducer eventProducer;
+    @LoginRequired
     @RequestMapping(path="/follow",method = RequestMethod.POST)
     @ResponseBody
     public String follow(int entityType,int entityId){
         User user=hostHolder.getUser();
 
         followService.follow(user.getId(), entityType,entityId);
+        //触发关注事件
+        Event event=new Event()
+                .setTopic(Constant.TOPIC_FOLLOW)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(entityType)
+                .setEntityId(entityId)
+                .setEntityUserId(entityId);
+        eventProducer.fireEvent(event);
+
         return CommunityUtil.getJSONString(0,"已关注");
     }
     @RequestMapping(path="/unfollow",method = RequestMethod.POST)

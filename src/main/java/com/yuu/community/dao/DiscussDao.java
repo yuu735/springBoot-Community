@@ -11,7 +11,6 @@ import java.util.List;
  * 帖子
  */
 @Mapper
-@Repository
 public interface DiscussDao {
     List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit);
 
