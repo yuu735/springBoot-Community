@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -89,6 +90,8 @@ public class LoginController {
     public String logout(@CookieValue("ticket") String ticket) {
         //找到名为ticket的cookie保存的value值，赋值给ticket字符串！
         userService.logout(ticket);
+        //清理securityContext中的认证
+        SecurityContextHolder.clearContext();
         return "redirect:/login";
     }
 

@@ -83,4 +83,22 @@ public class EventConsumer {
         //存到es服务器里面
         elasticsearchService.saveDiscussPost(post);
     }
+
+    //消费删除事件
+    @KafkaListener(topics = {Constant.TOPIC_DELETE})
+    public void handleDeleteMessage(ConsumerRecord record){
+        if(record==null || record.value()==null){
+            logger.error("消息内容为空");
+            return;
+        }
+        //转为event对象
+        Event event = JSONObject.parseObject(record.value().toString(), Event.class);
+        if (event == null) {
+            logger.error("消息格式错误!");
+            return;
+        }
+        //从事件的消息里得到帖子id，查到对应的帖子
+        //存到es服务器里面
+        elasticsearchService.deleteDiscussPost(event.getEntityId());
+    }
 }

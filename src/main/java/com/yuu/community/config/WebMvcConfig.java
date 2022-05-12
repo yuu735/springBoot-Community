@@ -12,11 +12,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * 如果有多个拦截器被注册，会根据注册的顺序执行拦截器
  */
 @Configuration
-public class MebMvcConfig implements WebMvcConfigurer{
+public class WebMvcConfig implements WebMvcConfigurer{
     @Autowired
     private LoginTicketInteceptor loginTicketInteceptor;
-    @Autowired
-    private LoginRequiredInterceptor loginRequiredInterceptor;
+   // @Autowired
+   // private LoginRequiredInterceptor loginRequiredInterceptor;
     @Autowired
     private MessageInterceptor messageInterceptor;
 
@@ -27,8 +27,8 @@ public class MebMvcConfig implements WebMvcConfigurer{
                 //excludePathPatterns：排除静态资源，不需要拦截
                 //所有页面都需要拦截所以不需要写addPathPatterns
 
-        registry.addInterceptor(loginRequiredInterceptor)
-                .excludePathPatterns("/**/*.css","/**/*.js","/**/*.png","/**/*.jpg","/**/*.jpeg");
+//        registry.addInterceptor(loginRequiredInterceptor)
+//                .excludePathPatterns("/**/*.css","/**/*.js","/**/*.png","/**/*.jpg","/**/*.jpeg");
 
         registry.addInterceptor(messageInterceptor)
                 .excludePathPatterns("/**/*.css","/**/*.js","/**/*.png","/**/*.jpg","/**/*.jpeg");

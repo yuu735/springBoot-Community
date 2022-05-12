@@ -63,5 +63,10 @@ public class HomeController {
     public String getErroerPage(){
         return "error/500";
     }
+    //权限不足跳转这
+    @RequestMapping(path = "/denied", method = RequestMethod.GET)
+    public String getDeniedPage() {
+        return "error/404";
+    }
 
 }

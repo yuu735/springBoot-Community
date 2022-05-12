@@ -2,7 +2,9 @@ package com.yuu.community.service;
 
 import com.yuu.community.entity.LoginTicket;
 import com.yuu.community.entity.User;
+import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Collection;
 import java.util.Map;
 
 public interface UserService {
@@ -22,4 +24,6 @@ public interface UserService {
     int updateStatus(int id,int status);
     int updateHeader(int id,String headerUrl);
     int updatePassword(int id,String password);
+
+    Collection<? extends GrantedAuthority> getAuthorities(int userId);
 }

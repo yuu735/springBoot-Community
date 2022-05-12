@@ -142,4 +142,69 @@ public class DiscussPostController {
         model.addAttribute("comments",commentVoList);
         return "site/discuss-detail";
     }
+
+    //置顶/取消置顶
+    @RequestMapping(path="/top",method = RequestMethod.POST)
+    @ResponseBody
+    public String setTop(int id){
+        DiscussPost post=discussPostService.findDiscussPostById(id);
+        //获取置顶状态：1-置顶，0-没置顶。此时如果getType=1表示目前想要执行取消置顶操作,getType=0表示目前想要执行置顶操作
+        // 1^1=-,0^1=1
+        int type=post.getType()^1;
+        discussPostService.updateType(id,type);
+        //返回的结构
+        Map<String,Object> map=new HashMap<>();
+        map.put("type",type);
+
+        //触发发帖事件（更改帖子状态）
+        Event event=new Event()
+                .setTopic(Constant.TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(Constant.ENTITY_TYPE_POST)
+                .setEntityId(id);
+
+        eventProducer.fireEvent(event);
+        return CommunityUtil.getJSONString(0,null,map);
+    }
+    //加精/取消加精
+    @RequestMapping(path="/wonderful",method = RequestMethod.POST)
+    @ResponseBody
+    public String setWonderful(int id){
+        DiscussPost post=discussPostService.findDiscussPostById(id);
+        //但这里不考虑拉黑状态了
+        //获取加精状态：0-正常，1-加精，2-拉黑删除。
+        System.out.println("当前帖子的状态是="+post.getStatus());
+        int status=post.getStatus()^1;
+        System.out.println("需要修改状态为="+post.getStatus());
+        discussPostService.updateStatus(id,status);
+        //返回的结果
+        Map<String,Object> map=new HashMap<>();
+        map.put("status",status);
+        System.out.println("当前修改后的状态是"+post.getStatus());
+
+        //触发发帖事件（更改帖子状态）
+        Event event=new Event()
+                .setTopic(Constant.TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(Constant.ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+        return CommunityUtil.getJSONString(0,null,map);
+    }
+    //删除(拉黑)
+    @RequestMapping(path="/delete",method = RequestMethod.POST)
+    @ResponseBody
+    public String setDelete(int id){
+        discussPostService.updateStatus(id,2);
+
+        //触发删除事件
+        Event event=new Event()
+                .setTopic(Constant.TOPIC_DELETE)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(Constant.ENTITY_TYPE_POST)
+                .setEntityId(id);
+
+        eventProducer.fireEvent(event);
+        return CommunityUtil.getJSONString(0,null);
+    }
 }

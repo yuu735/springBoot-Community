@@ -53,4 +53,14 @@ public class DiscussPostServiceImpl implements DiscussPostService {
     public int updateCommentCount(int id, int commentCount) {
         return discussDao.updateCommentCount(id, commentCount);
     }
+
+    @Override
+    public int updateType(int id, int type) {
+        return discussDao.updateType(id, type);
+    }
+
+    @Override
+    public int updateStatus(int id, int status) {
+        return discussDao.updateStatus(id,status);
+    }
 }

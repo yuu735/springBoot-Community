@@ -23,4 +23,7 @@ public interface DiscussDao {
     DiscussPost selectDiscussPostById(int id);
     //更新帖子回复的数量
     int updateCommentCount(int id, int commentCount);
+
+    int updateType(int id,int type);
+    int updateStatus(int id,int status);
 }

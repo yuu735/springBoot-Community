@@ -1,3 +1,54 @@
+//页面加载事件，实现动态绑定事件
+$(function(){
+   $("#topBtn").click(setTop);
+    $("#wonderfulBtn").click(setWonderful);
+    $("#deleteBtn").click(setDelete);
+});
+
+function setTop(){
+    $.post(
+        CONTEXT_PATH + "/discuss/top",
+        {"id":$("#postId").val()},
+        function(data){
+            data=$.parseJSON(data);
+            if(data.code==0){
+                $("#topBtn").text(data.type==1 ? '取消置顶':'置顶');
+                location.reload();
+            }else{
+                alert(data.msg);
+            }
+        }
+    );
+}
+function setWonderful(){
+    $.post(
+        CONTEXT_PATH + "/discuss/wonderful",
+        {"id":$("#postId").val()},
+        function (data){
+            data=$.parseJSON(data);
+            if(data.code==0){
+                $("#wonderfulBtn").text(data.status==1 ? '取消加精': '加精');
+                location.reload()
+            }else{
+                alert(data.msg);
+            }
+        }
+    );
+}
+function setDelete(){
+    $.post(
+        CONTEXT_PATH + "/discuss/delete",
+        {"id":$("#postId").val()},
+        function (data){
+            data=$.parseJSON(data);
+            if(data.code==0){
+               location.href=CONTEXT_PATH+"/index";
+            }else{
+                alert(data.msg);
+            }
+        }
+    );
+}
 function like(btn, entityType, entityId,entityUserId,postId) {
     $.post(
         CONTEXT_PATH + "/like",
