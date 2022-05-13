@@ -1,5 +1,6 @@
 package com.yuu.community.config;
 
+import com.yuu.community.interceptor.DataInterceptor;
 import com.yuu.community.interceptor.LoginRequiredInterceptor;
 import com.yuu.community.interceptor.LoginTicketInteceptor;
 import com.yuu.community.interceptor.MessageInterceptor;
@@ -19,6 +20,8 @@ public class WebMvcConfig implements WebMvcConfigurer{
    // private LoginRequiredInterceptor loginRequiredInterceptor;
     @Autowired
     private MessageInterceptor messageInterceptor;
+    @Autowired
+    private DataInterceptor dataInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -31,6 +34,9 @@ public class WebMvcConfig implements WebMvcConfigurer{
 //                .excludePathPatterns("/**/*.css","/**/*.js","/**/*.png","/**/*.jpg","/**/*.jpeg");
 
         registry.addInterceptor(messageInterceptor)
+                .excludePathPatterns("/**/*.css","/**/*.js","/**/*.png","/**/*.jpg","/**/*.jpeg");
+
+        registry.addInterceptor(dataInterceptor)
                 .excludePathPatterns("/**/*.css","/**/*.js","/**/*.png","/**/*.jpg","/**/*.jpeg");
     }
 }

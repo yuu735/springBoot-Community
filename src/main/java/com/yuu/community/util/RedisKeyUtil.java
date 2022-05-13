@@ -16,7 +16,10 @@ public class RedisKeyUtil {
     private static final String PREFIX_TICKET="ticket";
     //登录用户信息
     private static final String PREFIX_USER="user";
-
+    //独立访客
+    private static final String PREFIX_UV="uv";
+    //日活跃用户
+    private static final String PREFIX_DAU="dau";
     /**
      * 用于生成Redis中的键->某个实体的赞(key)
      * key格式-> like:entity:entityType:entityId
@@ -63,4 +66,22 @@ public class RedisKeyUtil {
     public static String getUserKey(int userId){
         return PREFIX_USER+SPLIT+userId;
     }
+    //单日uv
+    public static String getUVKey(String date){
+        return PREFIX_UV+SPLIT+date;
+    }
+    //区间uv：ex一周
+    public static String getUVKey(String startDate,String endDate){
+        return PREFIX_UV+SPLIT+startDate+SPLIT+endDate;
+    }
+    //单日dau
+    public static String getDAUKey(String date){
+        return PREFIX_DAU+SPLIT+date;
+    }
+    //区间dau：ex一周
+    public static String getDAUKey(String startDate,String endDate){
+        return PREFIX_DAU+SPLIT+startDate+SPLIT+endDate;
+    }
+
+
 }
