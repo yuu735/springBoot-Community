@@ -9,9 +9,11 @@ import com.yuu.community.service.UserService;
 import com.yuu.community.util.CommunityUtil;
 import com.yuu.community.util.Constant;
 import com.yuu.community.util.HostHolder;
+import com.yuu.community.util.RedisKeyUtil;
 import org.apache.catalina.Host;
 import org.elasticsearch.client.eql.EqlSearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +38,9 @@ public class DiscussPostController {
     private LikeService likeService;
     @Autowired
     private EventProducer eventProducer;
+    @Autowired
+    private RedisTemplate redisTemplate;
+
 
     @RequestMapping(path="/add",method= RequestMethod.POST)
     @ResponseBody
@@ -51,6 +56,7 @@ public class DiscussPostController {
         post.setContent(content);
         post.setCreateTime(new Date());
         discussPostService.addDiscussPost(post);
+
         //触发发帖事件（存到elasticsearch）
         Event event=new Event()
                 .setTopic(Constant.TOPIC_PUBLISH)
@@ -59,6 +65,12 @@ public class DiscussPostController {
                 .setEntityId(post.getId());
 
         eventProducer.fireEvent(event);
+
+        //计算帖子分数
+        String redisKey= RedisKeyUtil.getPostScoreKey();
+        //放到redis中
+        redisTemplate.opsForSet().add(redisKey,post.getId());
+
 
         //报错的情况将来统一处理
         return CommunityUtil.getJSONString(0,"发布成功");
@@ -189,6 +201,11 @@ public class DiscussPostController {
                 .setEntityType(Constant.ENTITY_TYPE_POST)
                 .setEntityId(id);
         eventProducer.fireEvent(event);
+        //计算帖子分数
+        String redisKey= RedisKeyUtil.getPostScoreKey();
+        //放到redis中
+        redisTemplate.opsForSet().add(redisKey,post.getId());
+
         return CommunityUtil.getJSONString(0,null,map);
     }
     //删除(拉黑)

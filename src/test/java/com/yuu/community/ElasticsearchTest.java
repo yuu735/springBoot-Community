@@ -49,16 +49,16 @@ public class ElasticsearchTest {
     @Test
     public void testinsertList(){
         //如果发现索引没有就自动创建索引加入数据
-        discussPostRepository.saveAll(discussDao.selectDiscussPosts(153,0,100));
-        discussPostRepository.saveAll(discussDao.selectDiscussPosts(101,0,100));
-        discussPostRepository.saveAll(discussDao.selectDiscussPosts(102,0,100));
-        discussPostRepository.saveAll(discussDao.selectDiscussPosts(103,0,100));
-        discussPostRepository.saveAll(discussDao.selectDiscussPosts(111,0,100));
-        discussPostRepository.saveAll(discussDao.selectDiscussPosts(112,0,100));
-        discussPostRepository.saveAll(discussDao.selectDiscussPosts(131,0,100));
-        discussPostRepository.saveAll(discussDao.selectDiscussPosts(132,0,100));
-        discussPostRepository.saveAll(discussDao.selectDiscussPosts(133,0,100));
-        discussPostRepository.saveAll(discussDao.selectDiscussPosts(134,0,100));
+        discussPostRepository.saveAll(discussDao.selectDiscussPosts(153,0,100,0));
+        discussPostRepository.saveAll(discussDao.selectDiscussPosts(101,0,100,0));
+        discussPostRepository.saveAll(discussDao.selectDiscussPosts(102,0,100,0));
+        discussPostRepository.saveAll(discussDao.selectDiscussPosts(103,0,100,0));
+        discussPostRepository.saveAll(discussDao.selectDiscussPosts(111,0,100,0));
+        discussPostRepository.saveAll(discussDao.selectDiscussPosts(112,0,100,0));
+        discussPostRepository.saveAll(discussDao.selectDiscussPosts(131,0,100,0));
+        discussPostRepository.saveAll(discussDao.selectDiscussPosts(132,0,100,0));
+        discussPostRepository.saveAll(discussDao.selectDiscussPosts(133,0,100,0));
+        discussPostRepository.saveAll(discussDao.selectDiscussPosts(134,0,100,0));
 
 
 
