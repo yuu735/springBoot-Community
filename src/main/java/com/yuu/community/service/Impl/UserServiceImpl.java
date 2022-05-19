@@ -216,6 +216,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void sendVerdifyMail(String verdify,User u) {
+        //发送邮件
+        Context context= new Context();
+        context.setVariable("email", u.getEmail());
+        context.setVariable("verdify",verdify);    //验证码
+        String content= templateEngine.process("/mail/forget",context);
+        mailClient.senMail(u.getEmail(), "忘记密码", content);
+    }
+
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities(int userId) {
         User user=this.findUserById(userId);
         List<GrantedAuthority> list=new ArrayList<>();

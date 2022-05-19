@@ -12,6 +12,8 @@ public class RedisKeyUtil {
     private static final String PREFIX_FOLLOWER="follower";
     //验证码
     private static final String PREFIX_KAPTCHA="kaptcha";
+    //忘记密码验证码
+    private static final String PREFIX_PWDKAPTCHA="pwdKaptcha";
     //登录凭证
     private static final String PREFIX_TICKET="ticket";
     //登录用户信息
@@ -60,6 +62,11 @@ public class RedisKeyUtil {
     public static String getKaptchaKey(String owner){
         //识别验证码属于哪个用户，还没登录就不知道是谁的验证码，因此先用一个临时凭证标注一下
         return PREFIX_KAPTCHA+SPLIT+owner;
+    }
+    //忘记密码验证码
+    public static String getpwdKaptchaKey(String owner){
+        //识别验证码属于哪个用户，还没登录就不知道是谁的验证码，因此先用一个临时凭证标注一下
+        return PREFIX_PWDKAPTCHA+SPLIT+owner;
     }
     //登录凭证
     public static String getTicketKey(String ticket){

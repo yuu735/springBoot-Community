@@ -24,6 +24,7 @@ public interface UserService {
     int updateStatus(int id,int status);
     int updateHeader(int id,String headerUrl);
     int updatePassword(int id,String password);
+    void sendVerdifyMail(String verdify,User u);
 
     Collection<? extends GrantedAuthority> getAuthorities(int userId);
 }

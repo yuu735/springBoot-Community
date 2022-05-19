@@ -1,11 +1,13 @@
 package com.yuu.community.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.Producer;
 import com.yuu.community.dao.LoginTicketDao;
 import com.yuu.community.entity.User;
 import com.yuu.community.service.UserService;
 import com.yuu.community.util.CommunityUtil;
 import com.yuu.community.util.Constant;
+import com.yuu.community.util.MailClient;
 import com.yuu.community.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -15,11 +17,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 
 import javax.imageio.ImageIO;
@@ -49,6 +51,10 @@ public class LoginController {
     private UserService userService;
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    private TemplateEngine templateEngine;
+    @Autowired
+    private MailClient mailClient;
     //前往登录页面
     @RequestMapping(path = "/login", method = RequestMethod.GET)
     public String getLoginPage() {
@@ -56,7 +62,8 @@ public class LoginController {
     }
 
     @RequestMapping(path="/login",method=RequestMethod.POST)
-    public String login(String username,String password,String code,boolean rememberMe,Model model,HttpServletResponse response,@CookieValue("kaptchaOwner")String kaptchaOwner){
+    public String login(String username,String password,String code,boolean rememberMe,
+                        Model model,HttpServletResponse response,@CookieValue("kaptchaOwner")String kaptchaOwner){
         //从redis中获取验证码(需要有key(kaptchaOwner)才能找到当前登录者对应的验证码是哪个,而浏览器中有一个cookie存储了这个值)
         String kaptcha=null;
         if(StringUtils.isNotBlank(kaptchaOwner)){
@@ -162,4 +169,80 @@ public class LoginController {
         }
         return "site/operate-result";
     }
+
+    //前往忘记密码页面
+    @RequestMapping(path = "/forget",method = RequestMethod.GET)
+    public String  getForgetPage() {
+        return "site/forget";
+    }
+
+    //发送忘记密码的验证码
+    @RequestMapping(path = "/sendVerdify",method = RequestMethod.POST)
+    @ResponseBody
+    public String sendVerdify(String email,HttpServletResponse response) {
+        System.out.println(email);
+        User u=userService.findUserByEmail(email);
+        //封装成json对象
+        JSONObject json=new JSONObject();
+        if(u==null){
+            json.put("emailMsg","该邮箱未被注册！请注册用户");
+            return json.toJSONString();
+        }
+        //生成验证码
+        String text=producer.createText();
+        System.out.println("当前验证忘记密码的验证码为="+text);
+        //验证码的归属者
+        String pwdKaptchaOwner= CommunityUtil.generateUUID();
+        //建立一个cookie记录：验证码的归属者，以便登录时可以从cookie取值进行判断
+        Cookie cookie=new Cookie("pwdKaptchaOwner",pwdKaptchaOwner);
+        cookie.setMaxAge(60*5);//验证码存活时间5分
+        cookie.setPath(contextPath);    //整个路径有效
+        response.addCookie(cookie);     //存到浏览器
+        //将验证码存入redis
+        String redisKey= RedisKeyUtil.getpwdKaptchaKey(pwdKaptchaOwner);
+        redisTemplate.opsForValue().set(redisKey,text,60*5, TimeUnit.SECONDS); //key,value,生存时间，时间单位
+        //之后会在登录的时候调用redis数据进行验证！
+
+//        //发送邮件
+//        Context context= new Context();
+//        context.setVariable("email", u.getEmail());
+//        context.setVariable("verdify",text);    //验证码
+//        String content= templateEngine.process("/mail/forget",context);
+//        mailClient.senMail(u.getEmail(), "忘记密码", content);
+        userService.sendVerdifyMail(text,u);
+        json.put("sendMsg","验证码发送成功请查看邮箱!");
+        return json.toJSONString();
+    }
+    //重置密码
+    @RequestMapping(path = "/newPassword",method = RequestMethod.POST)
+    public String newPassword(String email,String verify,String password,Model model
+            ,@CookieValue("pwdKaptchaOwner")String pwdKaptchaOwner){
+        //获取要修改密码的user
+        User u=userService.findUserByEmail(email);
+        if(u==null){
+            model.addAttribute("emailMsg","该邮箱未被注册！请注册用户");
+            return "site/forget";
+        }
+        //开始检查验证码
+        String kaptcha=null;
+        if(StringUtils.isNotBlank(pwdKaptchaOwner)){
+            String redisKey=RedisKeyUtil.getpwdKaptchaKey(pwdKaptchaOwner);
+            kaptcha=(String)redisTemplate.opsForValue().get(redisKey);
+        }
+        if(StringUtils.isBlank(kaptcha)||StringUtils.isBlank(verify)|| !kaptcha.equalsIgnoreCase(verify)){
+            model.addAttribute("codeMsg","验证码不正确");
+            return "site/forget";
+        }
+        //检查有无输入新密码
+        if(StringUtils.isBlank(password)){
+            model.addAttribute("pwdMsg","新密码不能为空");
+            return "site/forget";
+        }
+        //修改账号密码
+        String newPassword=CommunityUtil.md5(password+u.getSalt());
+        userService.updatePassword(u.getId(),newPassword);
+        return "redirect:/login";
+
+    }
+
 }
