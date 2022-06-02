@@ -20,5 +20,7 @@ public interface MessageService {
     int findNoticeUnreadCount(int userId, String topic);
 
     List<Message> findNotices(int userId, String topic, int offset, int limit);
+    //删除某条私信
+    int deleteLetter(int id);
 
 }

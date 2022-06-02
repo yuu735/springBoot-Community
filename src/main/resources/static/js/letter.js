@@ -30,5 +30,24 @@ function send_letter() {
 
 function delete_msg() {
 	// TODO 删除数据
-	$(this).parents(".media").remove();
+	var id=$("#letterId").val();
+	console.log(id);
+	$.post(
+		CONTEXT_PATH+"/letter/delete",
+		{"id":id},
+		function (data){
+			data=$.parseJSON(data);
+			if(data.code==0){
+				$("#hintBody").text("删除成功！");
+			}else{
+				$("#hintBody").text("删除失败！");
+			}
+			$("#hintModal").modal("show");
+			setTimeout(function(){
+				$("#hintModal").modal("hide");
+				location.reload();	//重载当前页面
+			}, 2000);
+		}
+	);
+	//$(this).parents(".media").remove();
 }

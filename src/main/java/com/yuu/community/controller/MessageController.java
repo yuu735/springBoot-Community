@@ -263,5 +263,13 @@ public class MessageController {
 
 
     }
+    @RequestMapping(path = "/letter/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public String deleteLetter(int id){
+        System.out.println("准备删除私信=====================");
+        messageService.deleteLetter(id);
+        System.out.println("已经成功修改status状态");
+        return CommunityUtil.getJSONString(0);
+    }
 
 }

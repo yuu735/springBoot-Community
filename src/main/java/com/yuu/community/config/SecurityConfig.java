@@ -33,6 +33,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(
                         "/user/setting",
                         "/user/upload",
+                        "/user/updatePassword",
+                        "/user/mypost/**",
                         "/discuss/add",
                         "/comment/add/**",
                         "/letter/**",

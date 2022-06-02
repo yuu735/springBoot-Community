@@ -11,4 +11,9 @@ public interface CommentDao {
     int selectCountByEntity(int entityType, int entityId);
     int insertComment(Comment comment);
     Comment selectCommentById(int id);
+    List<Comment> selectCommentsByUserid(int userId, int offset, int limit);
+    int selectCommentCountByUserid(int userId);
+    // 修改状态
+    int updateStatus(List<Integer> ids,int status);
+    List<Comment> selectCommentsByTypeAndId(int entityType, int entityId);
 }

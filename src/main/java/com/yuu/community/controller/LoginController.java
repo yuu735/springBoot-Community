@@ -204,11 +204,6 @@ public class LoginController {
         //之后会在登录的时候调用redis数据进行验证！
 
 //        //发送邮件
-//        Context context= new Context();
-//        context.setVariable("email", u.getEmail());
-//        context.setVariable("verdify",text);    //验证码
-//        String content= templateEngine.process("/mail/forget",context);
-//        mailClient.senMail(u.getEmail(), "忘记密码", content);
         userService.sendVerdifyMail(text,u);
         json.put("sendMsg","验证码发送成功请查看邮箱!");
         return json.toJSONString();

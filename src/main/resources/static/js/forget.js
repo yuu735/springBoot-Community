@@ -1,28 +1,4 @@
-// $(function(){
-// 	$("#sendVerdifyBtn").click(publish);
-// });
-// $("#email").blur(function (){
-// 	if($("#email").val().length!=0){
-// 		var email=$("#email").val();
-// 		$.post(
-// 			CONTEXT_PATH+"/checkEmail",
-// 			{"email":email},
-// 			function (data){
-// 				data=$.parseJSON(data);//转为json对象
-// 				if(data.emailMsg!=null){
-// 					console.log(data.emailMsg);
-// 					$("#email").attr('class','form-control is-invalid');
-// 					$("#emailMsg").text(data.emailMsg);
-//
-// 				}else{
-// 					$("#email").attr('class','form-control');
-// 					$("#sendVerdifyBtn").attr('class','btn btn-info form-control');
-// 				}
-// 			}
-// 		);
-// 	}
-// });
-
+//发送验证码
 function publish() {
 	var email=$("#email").val();
 	//发送异步请求

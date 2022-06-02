@@ -59,4 +59,24 @@ public class CommentServiceImpl implements CommentService {
     public Comment findCommentById(int id) {
         return commentDao.selectCommentById(id);
     }
+
+    @Override
+    public List<Comment> findCommentsByUserid(int userId, int offset, int limit) {
+        return commentDao.selectCommentsByUserid(userId,offset,limit);
+    }
+
+    @Override
+    public int findCommentCountByUserid(int userId) {
+        return commentDao.selectCommentCountByUserid(userId);
+    }
+
+    @Override
+    public int updateStatus(List<Integer> ids, int status) {
+        return commentDao.updateStatus(ids,2);
+    }
+
+    @Override
+    public List<Comment> selectCommentsByTypeAndId(int entityType, int entityId) {
+        return commentDao.selectCommentsByTypeAndId(entityType, entityId);
+    }
 }

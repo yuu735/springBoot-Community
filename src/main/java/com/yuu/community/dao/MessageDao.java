@@ -39,5 +39,6 @@ public interface MessageDao {
     // 查询某个主题所包含的通知列表:用于显示通知详情的，需要获取某个主题所有的通知
     List<Message> selectNotices(int userId, String topic, int offset, int limit);
 
-
+    //删除某条私信
+    int deleteLetter(int id);
 }

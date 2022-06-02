@@ -73,4 +73,9 @@ public class MessageServiceImpl implements MessageService {
     public List<Message> findNotices(int userId, String topic, int offset, int limit) {
         return messageDao.selectNotices(userId, topic, offset, limit);
     }
+
+    @Override
+    public int deleteLetter(int id) {
+        return messageDao.deleteLetter(id);
+    }
 }

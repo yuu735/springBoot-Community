@@ -76,9 +76,11 @@ public class FollowServiceImpl implements FollowService {
         return redisTemplate.opsForZSet().score(followeeKey,entityId)!=null;
     }
     //查询某用户关注的人
+    ////Map对数据进行包装，再放到集合中
     @Override
     public List<Map<String, Object>> findFollowees(int userId, int offset, int limit) {
         String followeeKey=RedisKeyUtil.getFolloweeKey(userId, Constant.ENTITY_TYPE_USER);
+        //由于redis中存的数据类型是zSet所以返回的结果也是set
         Set<Integer> targetIds=redisTemplate.opsForZSet().reverseRange(followeeKey,offset,offset+limit-1);
         if(targetIds==null){
             return  null;

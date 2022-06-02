@@ -31,10 +31,43 @@
           and entity_type = #{entityType}
           and entity_id = #{entityId}
     </select>
-    <insert id="insertComment" parameterType="Comment">
+    <insert id="insertComment" useGeneratedKeys="true" keyProperty="id" parameterType="Comment">
         insert into comment(<include refid="insertFields"></include>)
         values(#{userId},#{entityType},#{entityId},#{targetId},#{content},#{status},#{createTime})
     </insert>
+
+    <select id="selectCommentCountByUserid" parameterType="int" resultType="int">
+        SELECT count(id) FROM community.comment
+        where user_id=#{userId}
+        and entity_type=1
+        and status!=2
+        group by user_id;
+    </select>
+    <select id="selectCommentsByUserid" resultType="Comment">
+        select <include refid="selectFields"></include>
+        from comment
+        where user_id=#{userId}
+        and entity_type=1
+        and status!=2
+        order by create_time desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <update id="updateStatus" parameterType="int">
+        update comment set status=#{status}
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="selectCommentsByTypeAndId" resultType="Comment">
+        select <include refid="selectFields"></include>
+        from comment
+        where status = 0
+        and entity_type = #{entityType}
+        and entity_id = #{entityId}
+    </select>
 
 
 </mapper>

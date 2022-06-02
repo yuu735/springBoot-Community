@@ -1,10 +1,11 @@
 package com.yuu.community.controller;
 
 import com.yuu.community.annotation.LoginRequired;
+import com.yuu.community.entity.Comment;
+import com.yuu.community.entity.DiscussPost;
+import com.yuu.community.entity.Page;
 import com.yuu.community.entity.User;
-import com.yuu.community.service.FollowService;
-import com.yuu.community.service.LikeService;
-import com.yuu.community.service.UserService;
+import com.yuu.community.service.*;
 import com.yuu.community.util.CommunityUtil;
 import com.yuu.community.util.Constant;
 import com.yuu.community.util.HostHolder;
@@ -23,14 +24,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-
+    @Autowired
+    private DiscussPostService discussPostService;
+    @Autowired
+    private CommentService commentService;
     @Autowired
     private UserService userService;
     @Value("${community.path.upload}")
@@ -143,6 +149,8 @@ public class UserController {
     @RequestMapping(path = "/profile/{userId}",method = RequestMethod.GET)
     public String getProfile(@PathVariable("userId")int userId,Model model){
         User user=userService.findUserById(userId);
+        User LoginUser=hostHolder.getUser();
+        model.addAttribute("loginUser",LoginUser);
         if(user==null){
             throw new RuntimeException("该用户不存在");
         }
@@ -166,5 +174,73 @@ public class UserController {
         }
         model.addAttribute("hasFollowed",hasFollowed);
         return "site/profile";
+    }
+
+    //我的帖子（别人不可以查看）mypost
+    @RequestMapping(path = "/mypost/{userId}",method = RequestMethod.GET)
+    public String getmypost(@PathVariable("userId")int userId, Model model, Page page){
+        User user=userService.findUserById(userId);
+
+        if(user==null){
+            throw new RuntimeException("该用户不存在");
+        }
+        //用户基本信息
+        model.addAttribute("user",user);
+        int rows=discussPostService.findDiscussPostRows(userId);
+        page.setRows(rows);
+        model.addAttribute("rows",rows);
+        //翻页的时候不能把orderMode给丢了所以要拼进去链接,这样才能带上orderMode
+        page.setPath("/user/mypost/"+userId);
+        //orderMode=0 默认发帖时间倒序，orderMode=1 按分数热度倒序
+        List<DiscussPost> list=discussPostService.findDiscussPosts(userId,page.getOffset(),page.getLimit(),0);
+        List<Map<String, Object>> discussPosts = new ArrayList<>();
+        if (list != null) {
+            for (DiscussPost post : list) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("post", post);
+                map.put("user",user);
+                long likeCount=likeService.findEntityLikeCount(Constant.ENTITY_TYPE_POST,post.getId());
+                map.put("likeCount",likeCount);
+                discussPosts.add(map);
+            }
+        }
+        model.addAttribute("discussPosts", discussPosts);
+        model.addAttribute("page",page);
+
+        return "site/my-post";
+    }
+    //我的回复（别人不可以查看）
+    @RequestMapping(path = "/myreply/{userId}",method = RequestMethod.GET)
+    public String getreply(@PathVariable("userId")int userId, Model model, Page page){
+        User user=userService.findUserById(userId);
+        if(user==null){
+            throw new RuntimeException("该用户不存在");
+        }
+        //用户基本信息
+        model.addAttribute("user",user);
+        int rows=commentService.findCommentCountByUserid(userId);
+        page.setRows(rows);
+        model.addAttribute("rows",rows);
+        //翻页的时候不能把orderMode给丢了所以要拼进去链接,这样才能带上orderMode
+        page.setPath("/user/myreply/"+userId);
+        //orderMode=0 默认发帖时间倒序，orderMode=1 按分数热度倒序
+        //要找的是回复的帖子！
+        List<Comment> list=commentService.findCommentsByUserid(userId,page.getOffset(),page.getLimit());
+        List<Map<String, Object>> comments = new ArrayList<>();
+        if (list != null) {
+            for (Comment comment : list) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("comment", comment);
+                DiscussPost post=discussPostService.findDiscussPostById(comment.getEntityId());
+                map.put("post", post);
+                map.put("user",user);
+
+                comments.add(map);
+            }
+        }
+        model.addAttribute("comments", comments);
+        model.addAttribute("page",page);
+
+        return "site/my-reply";
     }
 }

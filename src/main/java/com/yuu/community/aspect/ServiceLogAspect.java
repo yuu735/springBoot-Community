@@ -16,6 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * 统一记录日志，使用AOP来实现
+ */
 @Component
 @Aspect
 public class ServiceLogAspect {
@@ -30,6 +33,7 @@ public class ServiceLogAspect {
     public void before(JoinPoint joinPoint){
         //格式：用户[1.2.3.4],在[xxx时间],访问了[com.....service...()方法]
         ServletRequestAttributes attributes=(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        //一个请求到达容器后，Spring会把该请求Request实例通过setRequestAttributes方法 把Request实例放入该请求线程内ThreadLocalMap中，然后就可以通过静态方法取到
         if(attributes==null){
            return;
         }

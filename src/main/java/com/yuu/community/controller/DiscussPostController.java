@@ -130,7 +130,7 @@ public class DiscussPostController {
                         replyVo.put("reply", reply);
                         // 作者
                         replyVo.put("user", userService.findUserById(reply.getUserId()));
-                        // 回复目标
+                        // 回复目标（楼中楼的情况：a回复b说：xxx。b就是target）
                         User target = reply.getTargetId() == 0 ? null : userService.findUserById(reply.getTargetId());
                         replyVo.put("target", target);
                         //评论的赞数量
@@ -213,7 +213,7 @@ public class DiscussPostController {
     @ResponseBody
     public String setDelete(int id){
         discussPostService.updateStatus(id,2);
-
+        commentService.updateStatus(getIds(id),2);
         //触发删除事件
         Event event=new Event()
                 .setTopic(Constant.TOPIC_DELETE)
@@ -223,5 +223,29 @@ public class DiscussPostController {
 
         eventProducer.fireEvent(event);
         return CommunityUtil.getJSONString(0,null);
+    }
+
+    //获取删除帖子所对应的所有comment集合（存放的是comment的id）
+    private List<Integer> getIds(int entityId) {
+        //先找出entity_type=1和要删除帖子的entity_id
+        List<Integer> ids = new ArrayList<>();
+        List<Comment> type1List=commentService.selectCommentsByTypeAndId(Constant.ENTITY_TYPE_POST,entityId);
+        if(type1List!=null){
+            for(Comment comment:type1List)
+                ids.add(comment.getId());
+        }
+        //再找出ids中的id此时作为entity_id，entity_type=2的表示回复中的回复，然后记住该评论id也是需要修改状态的！
+        //如果在遍历集合的过程中要修改集合，必须用get()取值才不会出错
+        if(ids.size()>0){
+            for(int i=0;i<ids.size();i++){
+                List<Comment> type2List=commentService.selectCommentsByTypeAndId(Constant.ENTITY_TYPE_COMMENT,ids.get(i));
+                if(type2List!=null){
+                    for(Comment c:type2List){
+                        ids.add(c.getId());
+                    }
+                }
+            }
+        }
+        return ids;
     }
 }

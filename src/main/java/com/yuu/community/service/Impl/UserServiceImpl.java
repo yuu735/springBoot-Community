@@ -114,6 +114,7 @@ public class UserServiceImpl implements UserService {
         }if(StringUtils.isBlank(password)){
             map.put("passwordMsg","密码不能为空");
         }
+        //开始验证账号和密码！
         User user=userDao.selectByName(username);
         if(user==null){
             map.put("usernameMsg","该账号不存在");
@@ -130,7 +131,7 @@ public class UserServiceImpl implements UserService {
             return map;
         }
 
-        // 生成登录凭证
+        // 验证成功，生成登录凭证
         LoginTicket loginTicket = new LoginTicket();
         loginTicket.setUserId(user.getId());        //登录用户id
         loginTicket.setTicket(CommunityUtil.generateUUID());//登录口令:随机字符串

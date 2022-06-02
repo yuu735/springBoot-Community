@@ -12,6 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+/**
+ * 在表现层统一处理异常
+ */
 //annotation限制范围，只去扫描带有controller注解的那些bean
 @ControllerAdvice(annotations = Controller.class)
 public class ExceptionAdvice {
